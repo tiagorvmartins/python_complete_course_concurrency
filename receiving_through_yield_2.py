@@ -1,7 +1,24 @@
-def greet():
-    friend = yield
-    print(f'Hello, {friend}')
+from collections import deque
 
-g = greet()
-g.send(None) # priming the generator  (runs right before the yield)
-g.send('Adam')
+friends = deque(('Rolf', 'Jose', 'Charlie', 'Jen', 'Anna'))
+
+
+def friend_upper():
+    while friends:
+        friend = friends.popleft().upper()
+        greeting = yield
+        print(f'{greeting} {friend}')
+
+
+def greet(g):
+    g.send(None)
+    while True:
+        greeting = yield
+        g.send(greeting)
+
+
+greeter = greet(friend_upper())
+greeter.send(None)
+greeter.send('Hello')
+print('Hello, world! Multitasking...')
+greeter.send('how are you')
